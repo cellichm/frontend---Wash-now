@@ -1,76 +1,64 @@
 <script setup>
-const getStepName = (id) => steps.find((step) => step.id === id).description || null;
+import { ref } from 'vue';
+import axios from 'axios';
 
-const getStepTotalTime = (stepIds) => {
+// Environment variable to check if the URL should be from local or from real API.
+const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : '';
+
+const fetchDataPoint = async (slug) => {
+	let items = [];
+
+	try {
+		const { data } = await axios.get(`${baseUrl}/${slug}`);
+
+		if (data.status === 'ok') {
+			items = data.data;
+		} else {
+			console.error('Error while fetching locations');
+
+			return null;
+		}
+
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+
+	return items;
+};
+
+
+const washPrograms = ref([]);
+const washSteps = ref([]);
+
+const getNeededData = async () => {
+	washPrograms.value = await fetchDataPoint('wash-programs');
+	washSteps.value = await fetchDataPoint('wash-steps');
+};
+
+getNeededData();
+
+const getStepName = (id) => washSteps.value.find((step) => step.id === id)?.description;
+
+const getStepTotalTime = () => {
 	let total = 0;
 
-	steps.forEach((step) => {
+	washSteps.value.forEach((step) => {
 		total += step.durationMinutes;
 	});
 
 	return total;
 };
 
-const getTotalPrice = (stepIds) => {
+const getTotalPrice = () => {
 	let total = 0;
 
-	steps.forEach((step) => {
+	washSteps.value.forEach((step) => {
 		total += step.price;
 	});
 
 	return total + 10;
 };
-
-const steps = [
-	{
-		id: 1,
-		description: "Ispiranje običnom vodom",
-		durationMinutes: 5,
-		price: 1
-	},
-	{
-		id: 3,
-		description: "Ispiranje demineraliziranom vodom",
-		durationMinutes: 5,
-		price: 2
-	},
-	{
-		id: 2,
-		description: "Pranje pjenom",
-		durationMinutes: 15,
-		price: 1
-	},
-	{
-		id: 4,
-		description: "Vosak",
-		durationMinutes: 30,
-		price: 2
-	},
-	{
-		id: 5,
-		description: "Pranje interijera",
-		durationMinutes: 45,
-		price: 4
-	}
-];
-
-const programs = [
-	{
-		id: 1,
-		name: "Standardno pranje",
-		steps: [1, 2, 4],
-	},
-	{
-		id: 4,
-		name: "Dubinsko pranje",
-		steps: [1, 2, 2, 4],
-	},
-	{
-		id: 2,
-		name: "Ispiranje + vosak",
-		steps: [1, 4],
-	},
-];
 </script>
 
 <template>
@@ -82,7 +70,7 @@ const programs = [
 		zablistati i izgledati kao novi!</p>
 
 	<div class="d-flex flex-wrap gap-2 mb-5">
-		<div class="card" v-for="program in programs" :key="program.id" style="width: 24rem">
+		<div class="card" v-for="program in washPrograms" :key="program.id" style="width: 24rem">
 			<div class="card-header">{{ program.name }}</div>
 			<ul class="list-group list-group-flush">
 				<li v-for="step in program.steps" class="list-group-item">{{ getStepName(step) }}</li>
@@ -103,7 +91,7 @@ const programs = [
 	<p>Ispod su izlistani svi naši programi, koliko tokena (1 token = 1€) je potrebno za taj program, te koliko traje.</p>
 
 	<div class="d-flex flex-wrap gap-2">
-		<div class="card" v-for="step in steps" :key="step.id" style="width: 24rem">
+		<div class="card" v-for="step in washSteps" :key="step.id" style="width: 24rem">
 			<div class="card-header">
 				{{ step.description }}
 			</div>
@@ -114,4 +102,3 @@ const programs = [
 		</div>
 	</div>
 </template>
-
