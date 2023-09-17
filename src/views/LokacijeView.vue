@@ -1,20 +1,40 @@
 <script setup>
-const items = [
-	{
-		id: 'pula-city-mall',
-		name: 'Pula City Mall',
-		address: 'Ul. Rimske centurijacije 101, 52100, Pula',
-		workHours: '0-24',
-		contact: '+38552123456'
-	},
-	{
-		id: 'pula-city-mall',
-		name: 'Pula City Mall',
-		address: 'Ul. Rimske centurijacije 101, 52100, Pula',
-		workHours: '0-24',
-		contact: '+38552123456'
-	},
-];
+import { ref } from 'vue';
+import axios from 'axios';
+
+// Environment variable to check if the URL should be from local or from real API.
+const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : '';
+
+const fetchDataPoint = async (slug) => {
+	let items = [];
+
+	try {
+		const { data } = await axios.get(`${baseUrl}/${slug}`);
+
+		if (data.status === 'ok') {
+			items = data.data;
+		} else {
+			console.error('Error while fetching locations');
+
+			return null;
+		}
+
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+
+	return items;
+};
+
+
+const items = ref([]);
+
+const getNeededData = async () => {
+	items.value = await fetchDataPoint('locations');
+};
+
+getNeededData();
 </script>
 
 <template>
@@ -26,8 +46,6 @@ const items = [
 				<h5 class="card-title">{{ item.name }}</h5>
 				<h6 class="card-subtitle mb-2 text-body-secondary">{{ item.address }}</h6>
 				<p class="card-text">Kontakt: {{ item.contact }}</p>
-				<a href="#" class="card-link">Card link</a>
-				<a href="#" class="card-link">Another link</a>
 			</div>
 
 			<div class="card-footer">
@@ -36,4 +54,3 @@ const items = [
 		</div>
 	</div>
 </template>
-
