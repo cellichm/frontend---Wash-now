@@ -29,4 +29,3 @@ const items = [
 		</div>
 	</div>
 </template>
-

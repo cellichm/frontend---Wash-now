@@ -28,6 +28,11 @@ import { RouterLink, RouterView } from 'vue-router'
 								Lokacije
 							</RouterLink>
 						</li>
+						<li class="nav-item">
+							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/rezerviraj">
+								Rezerviraj termin
+							</RouterLink>
+						</li>
 					</ul>
 
 					<ul class="navbar-nav ms-auto">
