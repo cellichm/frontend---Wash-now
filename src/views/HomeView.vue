@@ -1,9 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { RouterLink } from 'vue-router';
 
 // Environment variable to check if the URL should be from local or from real API.
 const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : '';
+
+const userToken = localStorage.getItem('washNowUserToken');
+const username = localStorage.getItem('washNowUserUsername');
 
 const fetchDataPoint = async (slug) => {
 	let items = [];
@@ -31,9 +35,12 @@ const reservations = ref([]);
 const washPrograms = ref([]);
 const washSteps = ref([]);
 const locations = ref([]);
+const myReservations = ref([]);
 
 const getNeededData = async () => {
-	reservations.value = await fetchDataPoint('reservations');
+	const allReservations = await fetchDataPoint('reservations');
+	reservations.value = allReservations;
+	myReservations.value = allReservations.filter((reservation) => reservation.username === username);
 	washPrograms.value = await fetchDataPoint('wash-programs');
 	washSteps.value = await fetchDataPoint('wash-steps');
 	locations.value = await fetchDataPoint('locations');
@@ -42,8 +49,18 @@ const getNeededData = async () => {
 getNeededData();
 
 const deleteReservation = async (id) => {
+	const userToken = localStorage.getItem('washNowUserToken');
+
+	if (!userToken) {
+		return;
+	}
+
 	try {
-		const response = await axios.delete(`${baseUrl}/reservation/${id}`);
+		const response = await axios.delete(`${baseUrl}/reservation/${id}`, {
+			headers: {
+				'Authorization': `Bearer ${userToken}`
+			}
+		});
 
 		if (response.data.status === 'ok') {
 			alert('Uspješno ste otkazali termin!');
@@ -64,7 +81,7 @@ const deleteReservation = async (id) => {
 
 	<h2 class="mb-3">Rezervacije</h2>
 	<div class="d-flex flex-wrap gap-2 mb-5">
-		<div class="card" v-for="reservation in reservations" :key="reservation.id" style="width: 24rem">
+		<div class="card" v-for="reservation in myReservations" :key="reservation.id" style="width: 24rem">
 			<div class="card-header">{{ new Date(reservation.date).toLocaleDateString() }} <br /> {{ reservation.timeStart
 			}} - {{ reservation.timeEnd }} <br /> {{ locations.find((loc) => loc.id === reservation.location)?.name }}
 			</div>
@@ -75,5 +92,13 @@ const deleteReservation = async (id) => {
 				<button class="btn btn-sm btn-danger" @click="deleteReservation(reservation._id)">Otkaži</button>
 			</div>
 		</div>
-	</div>
-</template>
+
+		<div class="p-5 mb-4 bg-body-tertiary rounded-3" v-if="myReservations.length < 1">
+			<div class="container-fluid py-3">
+				<p class="display-6 fw-bold">Nema rezervacija</p>
+				<RouterLink class="btn btn-primary btn-lg" to="/rezerviraj">Dodaj novu</RouterLink>
+			</div>
+		</div>
+
+
+	</div></template>

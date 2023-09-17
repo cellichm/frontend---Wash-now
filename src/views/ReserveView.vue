@@ -22,12 +22,19 @@ const selected = ref({
 const router = useRouter();
 
 const handleSubmit = async () => {
+	const userToken = localStorage.getItem('washNowUserToken');
+
+	if (!userToken) {
+		return;
+	}
+
 	const item = {
 		location: selected.value.location,
 		date: selected.value.date?.toISOString().split('T')[0],
 		timeStart: selected.value.timeStart,
 		washProgram: selected.value.washProgram,
 		washSteps: selected.value.washSteps,
+		username: localStorage.getItem('washNowUserUsername'),
 	};
 
 	if (Object.values(item).some((value) => !value)) {
@@ -41,15 +48,17 @@ const handleSubmit = async () => {
 	item.timeEnd = timeEnd.getHours().toString().padStart(2, '0') + ':' + timeEnd.getMinutes().toString().padStart(2, '0');
 
 	try {
+
 		const response = await axios.post(`${baseUrl}/reservations`, JSON.stringify(item), {
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${userToken}`,
 			}
 		});
 
 		if (response.data.status === 'ok') {
 			alert('Uspješno ste rezervirali termin!');
-			router.push('/');
+			router.push('/moje-rezervacije');
 		} else {
 			alert('Došlo je do greške prilikom rezervacije termina.');
 		}

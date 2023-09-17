@@ -1,5 +1,19 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { reactive } from 'vue';
+import { RouterLink, RouterView } from 'vue-router';
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
+
+const userData = reactive({ token: localStorage.getItem('washNowUserToken'), username: localStorage.getItem('washNowUserUsername'), });
+
+const logout = () => {
+	localStorage.removeItem('washNowUserToken');
+	localStorage.removeItem('washNowUserUsername');
+	router.push('/');
+	userData.token = null;
+	userData.username = null;
+};
 </script>
 
 <template>
@@ -15,11 +29,6 @@ import { RouterLink, RouterView } from 'vue-router'
 					<ul class="navbar-nav">
 						<li class="nav-item">
 							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/">
-								Home
-							</RouterLink>
-						</li>
-						<li class="nav-item">
-							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/usluge">
 								Usluge
 							</RouterLink>
 						</li>
@@ -28,7 +37,12 @@ import { RouterLink, RouterView } from 'vue-router'
 								Lokacije
 							</RouterLink>
 						</li>
-						<li class="nav-item">
+						<li class="nav-item" v-if="userData.token?.length > 0">
+							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/moje-rezervacije">
+								Moje rezervacije
+							</RouterLink>
+						</li>
+						<li class="nav-item" v-if="userData.token?.length > 0">
 							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/rezerviraj">
 								Rezerviraj termin
 							</RouterLink>
@@ -36,10 +50,23 @@ import { RouterLink, RouterView } from 'vue-router'
 					</ul>
 
 					<ul class="navbar-nav ms-auto">
-						<li class="nav-item">
-							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/korisnici">
-								Korisnici
+						<li class="nav-item" v-if="userData.token?.length > 0">
+							<span class="nav-link disabled">
+								{{ userData.username }}
+							</span>
+						</li>
+						<li class="nav-item" v-if="!userData.token">
+							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/prijava">
+								Prijava
 							</RouterLink>
+						</li>
+						<li class="nav-item" v-if="!userData.token">
+							<RouterLink active-class="active" class="nav-link" aria-current="page" to="/registracija">
+								Registracija
+							</RouterLink>
+						</li>
+						<li class="nav-item" v-if="userData.token?.length > 0">
+							<button @click.prevent="logout" class="nav-link">Odjava</button>
 						</li>
 					</ul>
 				</div>
