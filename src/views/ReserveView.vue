@@ -1,7 +1,7 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue';
-import { useRouter } from 'vue-router'
+import { useRouter } from 'vue-router';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';

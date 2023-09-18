@@ -1,13 +1,15 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 
 // Environment variable to check if the URL should be from local or from real API.
 const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : (import.meta.env.API_URL ?? 'https://mcellich-wash-now-backend.onrender.com');
 
 const userToken = localStorage.getItem('washNowUserToken');
 const username = localStorage.getItem('washNowUserUsername');
+
+const router = useRouter();
 
 const fetchDataPoint = async (slug) => {
 	let items = [];
@@ -65,7 +67,7 @@ const deleteReservation = async (id) => {
 		if (response.data.status === 'ok') {
 			alert('Uspješno ste otkazali termin!');
 
-			reservations.value = reservations.value.filter((reservation) => reservation._id !== id);
+			router.push('/moje-rezervacije');
 		} else {
 			alert('Došlo je do greške prilikom otkazivanja termina.');
 		}
