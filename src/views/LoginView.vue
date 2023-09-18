@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router'
 
 // Environment variable to check if the URL should be from local or from real API.
-const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : '';
+const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : (import.meta.env.API_URL ?? 'https://mcellich-wash-now-backend.onrender.com/');
 
 const router = useRouter();
 
