@@ -68,6 +68,7 @@ const deleteReservation = async (id) => {
 			alert('Uspješno ste otkazali termin!');
 
 			router.push('/moje-rezervacije');
+			router.go();
 		} else {
 			alert('Došlo je do greške prilikom otkazivanja termina.');
 		}

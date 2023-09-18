@@ -15,7 +15,6 @@ const selected = ref({
 	date: null,
 	timeStart: null,
 	washProgram: null,
-	washSteps: null,
 	washSteps: [],
 });
 
