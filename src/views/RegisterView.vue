@@ -8,6 +8,36 @@ const baseUrl = import.meta.env.DEV ? 'http://127.0.0.1:3000' : (import.meta.env
 
 const router = useRouter();
 
+const fetchDataPoint = async (slug) => {
+	let items = [];
+
+	try {
+		const { data } = await axios.get(`${baseUrl}/${slug}`);
+
+		if (data.status === 'ok') {
+			items = data.data;
+		} else {
+			console.error('Error while fetching locations');
+
+			return null;
+		}
+
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+
+	return items;
+};
+
+const existingUsers = ref([]);
+
+const getNeededData = async () => {
+	existingUsers.value = await fetchDataPoint('users');
+};
+
+getNeededData();
+
 const userData = ref({
 	username: null,
 	password: null,
@@ -19,6 +49,11 @@ const userData = ref({
 });
 
 const handleSubmit = async () => {
+	if (existingUsers.value.find((user) => user.username === userData.value.username)) {
+		alert('Korisničko ime je zauzeto.');
+		return;
+	}
+
 	try {
 		const response = await axios.post(`${baseUrl}/users`, JSON.stringify(userData.value), {
 			headers: {
